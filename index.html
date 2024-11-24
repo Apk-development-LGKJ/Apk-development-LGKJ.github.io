@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LG Account Login</title>
+  <title>LG 科技产品购买向导</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,40 +15,38 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       overflow: hidden;
     }
 
-    .container {
+  .container {
       background-color: rgba(255, 255, 255, 0.85);
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      max-width: 90%;
       text-align: center;
     }
 
-    .container:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+  .container:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
     }
 
     h1 {
       color: #333;
-      text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     button {
       background-color: #4285F4;
       color: white;
-      padding: 12px 25px;
-      margin: 10px;
+      padding: 10px 20px;
+      margin: 8px;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
       transition: background-color 0.3s ease, transform 0.3s ease;
     }
 
@@ -67,14 +65,14 @@
       transform: scale(1);
     }
 
-    .loading-circle {
-      border: 5px solid #4285F4;
-      border-top: 5px solid #fff;
+  .loading-circle {
+      border: 4px solid #4285F4;
+      border-top: 4px solid #fff;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       animation: spin 1s linear infinite;
-      margin: 20px auto;
+      margin: 15px auto;
     }
 
     @keyframes spin {
@@ -88,556 +86,161 @@
     }
 
     input {
-      padding: 10px;
-      border: 2px solid #4285F4;
-      border-radius: 5px;
+      padding: 8px;
+      border: 1.5px solid #4285F4;
+      border-radius: 4px;
       outline: none;
       transition: border-color 0.3s ease;
-      width: 80%;
-      margin-bottom: 15px;
-      font-size: 16px;
+      width: 70%;
+      margin-bottom: 12px;
+      font-size: 14px;
     }
 
     input:focus {
       border-color: #34A853;
     }
 
-    .code-input-container {
-      display: none;
-      margin-top: 20px;
-    }
-
-    .code-input-container input {
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-    }
-
-    .half-screen-link {
-      width: 50%;
-      height: 400px;
-      margin: 20px auto;
+    iframe {
+      width: 80%;
+      height: 300px;
       border: none;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    }
-
-    @media (max-width: 768px) {
-      .half-screen-link {
-        width: 90%;
-        height: 300px;
-      }
+      border-radius: 8px;
+      margin-top: 15px;
     }
   </style>
 </head>
 
 <body>
-  <div id="loginPage" class="container">
-    <h1>欢迎登录 LG 账号</h1>
-    <button id="continueButton">继续</button>
+  <div id="page1" class="container">
+    <h1>LG 科技产品购买向导</h1>
+    <button id="continueButton1">继续</button>
   </div>
 
-  <div id="loginPromptPage" class="container" style="display: none;">
-    <h1>请登录 LG 账号</h1>
-    <button id="loginButton">登录</button>
+  <div id="page2" class="container" style="display: none;">
+    <h1>请先同意我们的条款</h1>
+    <button id="continueButton2">继续</button>
   </div>
 
-  <div id="statusPage" class="container" style="display: none;">
-    <h1>正在获取状态……</h1>
+  <div id="page3" class="container" style="display: none;">
+    <iframe src="https://sharechain.qq.com/0f353174b05fc9802e0caba2c4d60d47"></iframe>
+    <button id="disagreeButton">不同意</button>
+    <button id="agreeButton">同意</button>
+  </div>
+
+  <div id="page4" class="container" style="display: none;">
+    <h1>如果您不同意政策我们无法向你售出激活码</h1>
+    <button id="backButton">返回</button>
+  </div>
+
+  <div id="page5" class="container" style="display: none;">
+    <h1>正在加载</h1>
     <div class="loading-circle"></div>
   </div>
 
-  <div id="verifyPage" class="container" style="display: none;">
-    <h1>请判断 User A00826693 是否是你的账号</h1>
-    <button id="noButton">不是</button>
-    <button id="yesButton">是</button>
+  <div id="page6" class="container" style="display: none;">
+    <h1>如果你想订阅我们的产品请必须认真按照步骤完成订阅</h1>
+    <button id="okButton1">好的</button>
   </div>
 
-  <div id="errorPage" class="container" style="display: none;">
-    <p>如果这个账号不是你的，请将下方错误详情发给开发者</p>
-    <p>error 409</p>
-    <p>iphi 20241006809am</p>
-    <p>q....................</p>
-    <p>w…………</p>
-    <button id="sendAndReturnButton">我已发送并返回</button>
+  <div id="page7" class="container" style="display: none;">
+    <h1>重要信息</h1>
+    <p>因为微信的异地支付原因，单次支付超过 80 将认定为非正常支付，所以我们比如需要购买一个 136 元的产品您需要先付两个 80，再付一个 16 即可，所以一共是三次支付每一次都要，填上相同的备注（备注信息一会儿将会向导），如果是第一个 80，在那个备注上写上 1 第二次支付写成 2，第三次支付写上 3</p>
+    <button id="continueButton3">继续</button>
   </div>
 
-  <div id="passwordInputPage" class="container" style="display: none;">
-    <h1>请输入您的账户密码</h1>
-    <input type="password" id="passwordInput" placeholder="请输入密码">
-    <button id="confirmButton">确定</button>
-    <button id="forgotPasswordButton">忘记密码</button>
+  <div id="page8" class="container" style="display: none;">
+    <h1>第一步</h1>
+    <iframe src="https://pan.huang1111.cn/s/aEjmGHG"></iframe>
+    <p>打开链接之后，我有一两个联系方式，第一个微信，第二个 QQ 先点击一下需要的联系方式然后点击右上角第一个按钮，并不是第二个下载即可放大图片</p>
+    <button id="continueButton4">继续</button>
   </div>
 
-  <div id="emailVerificationPage" class="container" style="display: none;">
-    <h1>请输入你的邮箱</h1>
-    <input type="email" id="emailInput" placeholder="请输入邮箱">
-    <button id="verifyEmailButton">验证</button>
+  <div id="page9" class="container" style="display: none;">
+    <h1>第二步</h1>
+    <p>备注信息，在您支付时会有个备注备注里显示你需要购买什么软件，买的多长时间的，写完这个之后，后面加上你的微信名 或者 QQ 号码，然后就后面加上刚刚向导后的那个一个数</p>
+    <button id="continueButton5">继续</button>
   </div>
 
-  <div id="codeVerificationPage" class="container" style="display: none;">
-    <h1>请输入验证码验证</h1>
-    <p>ID: <span id="verificationId"></span></p>
-    <input type="text" id="codeInput" placeholder="请输入验证码">
-    <button id="verifyCodeButton">验证</button>
+  <div id="page10" class="container" style="display: none;">
+    <h1>最后一步</h1>
+    <p>在您支付完成后，在我的任意一个联系方式下，把带有单号的付款截图发过来，还有你的微信名我们这边核实通过后，就会给您激活码</p>
+    <button id="okButton2">OK</button>
   </div>
 
-  <div id="loadingPage" class="container" style="display: none;">
-    <h1>正在载入，请稍等</h1>
-    <div class="loading-circle"></div>
-  </div>
-
-  <div id="successPage" class="container" style="display: none;">
-    <h1>您好啊！</h1>
-    <p>userA00836693</p>
-    <button id="viewBalanceButton">查看余额</button>
-    <button id="viewVIPStatusButton">查看 VIP 状态</button>
-    <button id="rechargeButton">充值余额</button>
-    <button id="buyMembershipButton">购买会员</button>
-    <button id="buyProductButton">购买产品</button> <!-- 新增按钮 -->
-  </div>
-
-  <!-- 新增页面：购买会员流程 -->
-  <div id="membershipLoadingPage" class="container" style="display: none;">
-    <h1>正在获取充值状态……</h1>
-    <div class="loading-circle" style="border-color: #4285F4 #fff #fff #fff;"></div>
-  </div>
-
-  <div id="membershipOptionsPage" class="container" style="display: none;">
-    <h1>选择会员类型</h1>
-    <button class="membershipButton" data-tier="普通会员" data-price="66" data-discount="9">普通会员 - 66 元 (9 折)</button>
-    <button class="membershipButton" data-tier="黄金会员" data-price="138" data-discount="8">黄金会员 - 138 元 (8 折)</button>
-    <button class="membershipButton" data-tier="钻石会员" data-price="300" data-discount="7">钻石会员 - 300 元 (7 折)</button>
-    <button class="membershipButton" data-tier="至尊会员" data-price="688" data-discount="5">至尊会员 - 688 元 (5 折)</button>
-  </div>
-
-  <div id="membershipSelectedPage" class="container" style="display: none;">
-    <h1>您选择了 <span id="selectedTier"></span></h1>
-    <p>价格: <span id="selectedPrice"></span> 元</p>
-    <p>所有商品打 <span id="selectedDiscount"></span> 折</p>
-    <button id="confirmMembershipButton">确认选择</button>
-  </div>
-
-  <div id="membershipPasswordVerificationPage" class="container" style="display: none;">
-    <h1>请输入密码验证</h1>
-    <p>ID: <span id="membershipVerificationId"></span></p>
-    <input type="text" id="membershipPasswordInput" placeholder="请输入密码">
-    <button id="membershipPasswordVerifyButton">验证</button>
-  </div>
-
-  <div id="membershipRechargeProcessingPage" class="container" style="display: none;">
-    <h1>正在充值，请稍等</h1>
-    <div class="loading-circle" style="border-color: #4285F4 #fff #fff #fff;"></div>
-  </div>
-
-  <div id="membershipRechargeCompletedPage" class="container" style="display: none;">
-    <h1>充值完成！</h1>
-    <button id="returnFromMembershipRechargeButton">返回</button>
-  </div>
-
-  <!-- 新增页面：购买产品流程 -->
-  <div id="productOptionsPage" class="container" style="display: none;">
-    <h1>选择产品</h1>
-    <button class="productButton">文本加解密</button>
-    <button class="productButton">PCT内存清理 pro</button>
-    <button class="productButton">MPC手机降温</button>
-    <button class="productButton">链接转二维码工具</button>
-    <button class="productButton">PC T ULTRA</button>
-    <button class="productButton">录屏大师</button>
-    <button class="productButton">alqzpmlua</button>
-    <button class="productButton">PDF工具箱</button>
-    <button class="productButton">PHONECLEANTOOL</button>
-    <button class="productButton">qazplnnha</button>
-    <button class="productButton">一键手机加速</button>
-    <button class="productButton">MPPC PRO maxultra</button>
-    <button class="productButton">Pct PROMAX</button>
-    <button class="productButton">MAvCT清理卫士标准版</button>
-    <button class="productButton">无限内存模拟丝滑版</button>
-    <button class="productButton">微信模拟器</button>
-    <button class="productButton">qazplnnha pro</button>
-  </div>
-
-  <div id="productPaymentStatusPage" class="container" style="display: none;">
-    <h1>正在获取支付状态……</h1>
-    <div class="loading-circle" style="border-color: #4285F4 #fff #fff #fff;"></div>
-  </div>
-
-  <div id="productPreparingCompletionPage" class="container" style="display: none;">
-    <h1>即将准备完成</h1>
-    <div class="loading-circle" style="border-color: #4285F4 #fff #fff #fff;"></div>
-  </div>
-
-  <div id="productReadyPage" class="container" style="display: none;">
-    <h1>准备就绪</h1>
-    <div class="loading-circle" style="border: 5px solid #4285F4; border-top: 5px solid #fff; border-right: 5px solid #34A853; border-bottom: 5px solid #fff; animation: spin 1s linear infinite;"></div>
-  </div>
-
-  <div id="confirmSubscriptionPage" class="container" style="display: none;">
-    <h1>您是否选择 (<span id="selectedProduct"></span>) 进行订阅？</h1>
-    <button id="confirmSubscriptionButton">确认</button>
-  </div>
-
-  <div id="activationCodeTimePage" class="container" style="display: none;">
-    <h1>请记住你购买的激活码的时间</h1>
-    <button id="activationCodeConfirmButton">确认</button>
-  </div>
-
-  <div id="developerContactPage" class="container" style="display: none;">
-    <h1>购买信息</h1>
-    <p>开发商联系方式：developer@example.com</p>
-    <p>软件名称：您购买的软件名称</p>
-    <p>激活码时长：一年</p>
-    <button id="developerContactConfirmButton">确定</button>
-  </div>
-
-  <div id="codeVerificationPageProduct" class="container" style="display: none;">
-    <h1>验证码验证</h1>
-    <p>ID: <span id="productVerificationId"></span></p>
-    <input type="text" id="productCodeInput" placeholder="请输入验证码">
-    <button id="productVerifyButton">验证</button>
-  </div>
-
-  <div id="linkPage" class="container" style="display: none;">
-    <iframe src="https://docs.qq.com/doc/DWHhIc0pOcnVIeEVy" class="half-screen-link"></iframe>
-    <button id="returnFromLinkPageButton">确认并返回</button>
-  </div>
-
-  <!-- 现有页面继续 -->
-  <div id="balanceLoadingPage" class="container" style="display: none;">
-    <h1>正在获取余额……</h1>
-    <div class="loading-circle"></div>
-  </div>
-
-  <div id="balancePage" class="container" style="display: none;">
-    <iframe src="https://docs.qq.com/doc/DWG9Qbm5UV25nV3dh" class="half-screen-link"></iframe>
-    <button id="returnBalanceButton">返回</button>
-  </div>
-
-  <div id="vipLoadingPage" class="container" style="display: none;">
-    <h1>正在获取 VIP 状态……</h1>
-    <div class="loading-circle"></div>
-  </div>
-
-  <div id="vipPage" class="container" style="display: none;">
-    <iframe src="https://docs.qq.com/doc/DWE9SbkRkS0RSUG5L" class="half-screen-link"></iframe>
-    <button id="returnVIPButton">返回</button>
-  </div>
-
-  <div id="forgotPasswordPage" class="container" style="display: none;">
-    <h1>忘记密码</h1>
-    <div id="emailVerificationSection">
-      <h2>邮箱验证</h2>
-      <input type="email" id="forgotPasswordEmailInput" placeholder="请输入您的邮箱">
-      <button id="startEmailVerificationButton">开始验证</button>
-    </div>
-  </div>
-
-  <div id="verificationSuccessPage" class="container" style="display: none;">
-    <h1>验证成功！</h1>
-    <div class="loading-circle"></div>
-  </div>
-
-  <div id="rechargeStatusPage" class="container" style="display: none;">
-    <h1>正在获取充值状态……</h1>
-    <div class="loading-circle"></div>
-  </div>
-
-  <div id="rechargeVerificationPage" class="container" style="display: none;">
-    <h1>请输入密码验证</h1>
-    <p>ID: <span id="rechargeVerificationId"></span></p>
-    <input type="text" id="rechargeCodeInput" placeholder="请输入密码">
-    <button id="rechargeVerifyButton">验证</button>
-  </div>
-
-  <div id="rechargeCompletedPage" class="container" style="display: none;">
-    <h1>充值完成！</h1>
-    <button id="returnFromRechargeButton">返回</button>
+  <div id="page11" class="container" style="display: none;">
+    <h1>感谢您的购买，谢谢您的支持，现在您可以退出向导界面了！</h1>
   </div>
 
   <script>
-    // 生成随机8位数ID
-    const generateRandomId = () => Math.floor(Math.random() * 90000000) + 10000000;
-
-    // 显示指定页面，隐藏其他页面
     const showPage = (pageId) => {
       const pages = document.querySelectorAll('.container');
       pages.forEach(page => {
-        page.style.display = (page.id === pageId) ? 'block' : 'none';
+        page.style.display = (page.id === pageId)? 'block' : 'none';
       });
     };
 
-    // 禁用按钮
     const disableButton = (button) => {
       button.disabled = true;
     };
 
-    // 初始页面显示登录页面
-    const continueButton = document.getElementById('continueButton');
-    continueButton.addEventListener('click', function () {
+    const continueButton1 = document.getElementById('continueButton1');
+    continueButton1.addEventListener('click', function () {
       disableButton(this);
-      showPage('loginPromptPage');
+      showPage('page2');
     });
 
-    // 登录按钮点击后显示状态页面
-    const loginButton = document.getElementById('loginButton');
-    loginButton.addEventListener('click', function () {
+    const continueButton2 = document.getElementById('continueButton2');
+    continueButton2.addEventListener('click', function () {
       disableButton(this);
-      showPage('statusPage');
-      setTimeout(function () {
-        showPage('verifyPage');
-      }, 3000); // 3秒后进入验证页面
+      showPage('page3');
     });
 
-    // 验证账号是否为用户自己
-    const noButton = document.getElementById('noButton');
-    noButton.addEventListener('click', function () {
-      showPage('errorPage');
+    const disagreeButton = document.getElementById('disagreeButton');
+    disagreeButton.addEventListener('click', function () {
+      showPage('page4');
     });
 
-    const sendAndReturnButton = document.getElementById('sendAndReturnButton');
-    sendAndReturnButton.addEventListener('click', function () {
-      showPage('verifyPage');
-    });
-
-    const yesButton = document.getElementById('yesButton');
-    yesButton.addEventListener('click', function () {
-      showPage('passwordInputPage');
-    });
-
-    // 确认密码按钮
-    const confirmButton = document.getElementById('confirmButton');
-    confirmButton.addEventListener('click', function () {
-      const password = document.getElementById('passwordInput').value;
-      if (password === '100000') { // 请将 '100000' 替换为实际的密码验证逻辑
-        showPage('loadingPage');
-        setTimeout(function () {
-          showPage('successPage');
-        }, 2000); // 2秒后进入成功页面
-      } else {
-        alert('密码错误');
-      }
-    });
-
-    // 忘记密码按钮
-    const forgotPasswordButton = document.getElementById('forgotPasswordButton');
-    forgotPasswordButton.addEventListener('click', function () {
-      showPage('forgotPasswordPage');
-    });
-
-    // 开始邮箱验证按钮
-    const startEmailVerificationButton = document.getElementById('startEmailVerificationButton');
-    startEmailVerificationButton.addEventListener('click', function () {
-      const email = document.getElementById('forgotPasswordEmailInput').value;
-      if (email === '1@1') { // 示例邮箱，替换为实际验证逻辑
-        const randomId = generateRandomId();
-        document.getElementById('verificationId').textContent = randomId;
-        showPage('codeVerificationPage');
-      } else {
-        alert('邮箱错误');
-      }
-    });
-
-    // 验证验证码按钮
-    const verifyCodeButton = document.getElementById('verifyCodeButton');
-    verifyCodeButton.addEventListener('click', function () {
-      const id = parseInt(document.getElementById('verificationId').textContent);
-      const inputCode = parseInt(document.getElementById('codeInput').value);
-      const correctCode = (id * 3 - 28) * 2;
-      if (inputCode === correctCode) {
-        showPage('verificationSuccessPage');
-        setTimeout(() => {
-          showPage('successPage');
-        }, 3000); // 3秒后返回成功页面
-      } else {
-        alert('验证码错误');
-      }
-    });
-
-    // 充值按钮
-    const rechargeButton = document.getElementById('rechargeButton');
-    rechargeButton.addEventListener('click', function () {
-      showPage('rechargeStatusPage');
+    const agreeButton = document.getElementById('agreeButton');
+    agreeButton.addEventListener('click', function () {
+      showPage('page5');
       setTimeout(() => {
-        const randomId = generateRandomId();
-        document.getElementById('rechargeVerificationId').textContent = randomId;
-        showPage('rechargeVerificationPage');
-      }, 2000); // 2秒后进入充值验证页面
+        showPage('page6');
+      }, 700);
     });
 
-    // 验证充值密码按钮
-    const rechargeVerifyButton = document.getElementById('rechargeVerifyButton');
-    rechargeVerifyButton.addEventListener('click', function () {
-      const id = parseInt(document.getElementById('rechargeVerificationId').textContent);
-      const inputCode = parseInt(document.getElementById('rechargeCodeInput').value);
-      const correctCode = (id * 3 - 28) * 2;
-      if (inputCode === correctCode) {
-        showPage('rechargeCompletedPage');
-      } else {
-        alert('密码错误');
-      }
+    const backButton = document.getElementById('backButton');
+    backButton.addEventListener('click', function () {
+      showPage('page3');
     });
 
-    // 返回按钮（充值完成后返回成功页面）
-    const returnFromRechargeButton = document.getElementById('returnFromRechargeButton');
-    returnFromRechargeButton.addEventListener('click', function () {
-      showPage('successPage');
-    });
-
-    // 查看余额按钮
-    const viewBalanceButton = document.getElementById('viewBalanceButton');
-    const returnBalanceButton = document.getElementById('returnBalanceButton');
-    viewBalanceButton.addEventListener('click', function () {
+    const okButton1 = document.getElementById('okButton1');
+    okButton1.addEventListener('click', function () {
       disableButton(this);
-      showPage('balanceLoadingPage');
-      setTimeout(function () {
-        showPage('balancePage');
-        viewBalanceButton.disabled = false;
-      }, 3000); // 3秒后显示余额页面
+      showPage('page7');
     });
 
-    returnBalanceButton.addEventListener('click', function () {
-      showPage('successPage');
-    });
-
-    // 查看 VIP 状态按钮
-    const viewVIPStatusButton = document.getElementById('viewVIPStatusButton');
-    const returnVIPButton = document.getElementById('returnVIPButton');
-    viewVIPStatusButton.addEventListener('click', function () {
+    const continueButton3 = document.getElementById('continueButton3');
+    continueButton3.addEventListener('click', function () {
       disableButton(this);
-      showPage('vipLoadingPage');
-      setTimeout(function () {
-        showPage('vipPage');
-        viewVIPStatusButton.disabled = false;
-      }, 5000); // 5秒后显示 VIP 页面
+      showPage('page8');
     });
 
-    returnVIPButton.addEventListener('click', function () {
-      showPage('successPage');
-    });
-
-    // 新增功能：购买会员按钮
-    const buyMembershipButton = document.getElementById('buyMembershipButton');
-    buyMembershipButton.addEventListener('click', function () {
+    const continueButton4 = document.getElementById('continueButton4');
+    continueButton4.addEventListener('click', function () {
       disableButton(this);
-      showPage('membershipLoadingPage');
-      setTimeout(function () {
-        showPage('membershipOptionsPage');
-        buyMembershipButton.disabled = false;
-      }, 3000); // 3秒后显示会员选项页面
+      showPage('page9');
     });
 
-    // 选择会员类型按钮
-    const membershipButtons = document.querySelectorAll('.membershipButton');
-    membershipButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const tier = button.getAttribute('data-tier');
-        const price = button.getAttribute('data-price');
-        const discount = button.getAttribute('data-discount');
-        document.getElementById('selectedTier').textContent = tier;
-        document.getElementById('selectedPrice').textContent = price;
-        document.getElementById('selectedDiscount').textContent = discount;
-        showPage('membershipSelectedPage');
-      });
-    });
-
-    // 确认选择会员按钮
-    const confirmMembershipButton = document.getElementById('confirmMembershipButton');
-    confirmMembershipButton.addEventListener('click', () => {
-      showPage('membershipPasswordVerificationPage');
-      // 生成随机8位ID
-      const verificationId = generateRandomId();
-      document.getElementById('membershipVerificationId').textContent = verificationId;
-      // 计算密码: (ID * 3 - 28) * 2
-      const password = (verificationId * 3 - 28) * 2;
-      document.getElementById('membershipPasswordVerificationPage').setAttribute('data-password', password);
-    });
-
-    // 验证会员密码按钮
-    const membershipPasswordVerifyButton = document.getElementById('membershipPasswordVerifyButton');
-    membershipPasswordVerifyButton.addEventListener('click', () => {
-      const enteredPassword = document.getElementById('membershipPasswordInput').value;
-      const correctPassword = document.getElementById('membershipPasswordVerificationPage').getAttribute('data-password');
-      if (parseInt(enteredPassword) === parseInt(correctPassword)) {
-        showPage('membershipRechargeProcessingPage');
-        // 模拟充值处理3秒
-        setTimeout(() => {
-          showPage('membershipRechargeCompletedPage');
-        }, 3000);
-      } else {
-        alert('密码错误，请重新输入。');
-      }
-    });
-
-    // 返回按钮（会员充值完成后返回成功页面）
-    const returnFromMembershipRechargeButton = document.getElementById('returnFromMembershipRechargeButton');
-    returnFromMembershipRechargeButton.addEventListener('click', () => {
-      showPage('successPage');
-    });
-
-    // 新增功能：购买产品按钮
-    const buyProductButton = document.getElementById('buyProductButton');
-    buyProductButton.addEventListener('click', function () {
+    const continueButton5 = document.getElementById('continueButton5');
+    continueButton5.addEventListener('click', function () {
       disableButton(this);
-      showPage('productOptionsPage');
+      showPage('page10');
     });
 
-    // 选择产品按钮
-    const productButtons = document.querySelectorAll('.productButton');
-    productButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const productName = button.textContent;
-        document.getElementById('selectedProduct').textContent = productName;
-        showPage('productPaymentStatusPage');
-        setTimeout(() => {
-          showPage('productPreparingCompletionPage');
-          setTimeout(() => {
-            showPage('productReadyPage');
-            setTimeout(() => {
-              showPage('confirmSubscriptionPage');
-            }, 1000); // 1秒后进入确认订阅页面
-          }, 3000); // 3秒后进入准备完成页面
-        }, 3000); // 3秒后进入获取支付状态页面
-      });
-    });
-
-    // 确认订阅按钮
-    const confirmSubscriptionButton = document.getElementById('confirmSubscriptionButton');
-    confirmSubscriptionButton.addEventListener('click', function () {
-      showPage('activationCodeTimePage');
-    });
-
-    // 激活码时间确认按钮
-    const activationCodeConfirmButton = document.getElementById('activationCodeConfirmButton');
-    activationCodeConfirmButton.addEventListener('click', function () {
-      showPage('developerContactPage');
-    });
-
-    // 开发商联系方式确认按钮
-    const developerContactConfirmButton = document.getElementById('developerContactConfirmButton');
-    developerContactConfirmButton.addEventListener('click', function () {
-      showPage('codeVerificationPageProduct');
-      // 生成随机8位ID
-      const productVerificationId = generateRandomId();
-      document.getElementById('productVerificationId').textContent = productVerificationId;
-    });
-
-    // 验证产品验证码按钮
-    const productVerifyButton = document.getElementById('productVerifyButton');
-    productVerifyButton.addEventListener('click', function () {
-      const id = parseInt(document.getElementById('productVerificationId').textContent);
-      const inputCode = parseInt(document.getElementById('productCodeInput').value);
-      const correctCode = (id * 3 - 28) * 2;
-      if (inputCode === correctCode) {
-        showPage('linkPage');
-      } else {
-        alert('验证码错误');
-      }
-    });
-
-    // 确认并返回按钮
-    const returnFromLinkPageButton = document.getElementById('returnFromLinkPageButton');
-    returnFromLinkPageButton.addEventListener('click', function () {
-      showPage('successPage');
+    const okButton2 = document.getElementById('okButton2');
+    okButton2.addEventListener('click', function () {
+      disableButton(this);
+      showPage('page11');
     });
   </script>
 </body>
