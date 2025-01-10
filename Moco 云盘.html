@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moco 云盘- 您的私人云存储空间</title>
+    <title>MOCO 云盘 - 您的私人云存储空间</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -75,6 +75,7 @@
 
         .form-group {
             margin-bottom: 1.5rem;
+            position: relative;
         }
 
         .form-group input {
@@ -92,6 +93,13 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
             background-color: var(--white);
+        }
+
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 2.5px;
+            transition: all 0.3s ease;
         }
 
         .btn {
@@ -360,6 +368,125 @@
             100% { transform: rotate(360deg); }
         }
 
+        .logout-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .search-bar {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 2px solid var(--background-color);
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .sort-options {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .sort-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .sort-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .sort-btn.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .download-manager {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            max-width: 300px;
+            width: 100%;
+            display: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .download-manager.show {
+            display: block;
+            animation: slideInUp 0.3s ease;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .download-item {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background-color: var(--background-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .download-item-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .download-item-progress {
+            height: 5px;
+            background-color: var(--primary-color);
+            border-radius: 2.5px;
+            transition: width 0.3s ease;
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 1.5rem;
@@ -382,6 +509,12 @@
 
             .file-btn {
                 flex-grow: 1;
+            }
+
+            .download-manager {
+                left: 1rem;
+                right: 1rem;
+                max-width: none;
             }
         }
     </style>
@@ -410,7 +543,8 @@
                 <input type="text" placeholder="用户名" required>
             </div>
             <div class="form-group">
-                <input type="password" placeholder="密码" required>
+                <input type="password" id="password" placeholder="密码" required>
+                <div class="password-strength"></div>
             </div>
             <div class="form-group">
                 <input type="password" placeholder="确认密码" required>
@@ -424,7 +558,17 @@
 
     <div class="container" id="file-container" style="display: none;">
         <h1>我的文件</h1>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="搜索文件...">
+            <span class="search-icon">🔍</span>
+        </div>
+        <div class="sort-options">
+            <button class="sort-btn active" data-sort="name">名称</button>
+            <button class="sort-btn" data-sort="date">日期</button>
+            <button class="sort-btn" data-sort="size">大小</button>
+        </div>
         <div id="file-list"></div>
+        <button class="logout-btn" id="logout-btn">登出</button>
     </div>
 
     <div class="upload-btn" id="upload-btn">+</div>
@@ -441,254 +585,472 @@
         </div>
     </div>
 
+    <div class="download-manager" id="download-manager">
+        <h3>下载管理器</h3>
+        <div id="download-list"></div>
+    </div>
+
     <script>
-        // 存储用户数据
-        let users = JSON.parse(localStorage.getItem('users')) || {};
-        let files = JSON.parse(localStorage.getItem('files')) || {};
-        let currentUser = null;
+        document.addEventListener('DOMContentLoaded', function() {
+            // 存储用户数据
+            let users = JSON.parse(localStorage.getItem('users')) || {};
+            let files = {};
 
-        // DOM 元素
-        const loginContainer = document.getElementById('login-container');
-        const registerContainer = document.getElementById('register-container');
-        const fileContainer = document.getElementById('file-container');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const toggleRegister = document.getElementById('toggle-register');
-        const toggleLogin = document.getElementById('toggle-login');
-        const uploadBtn = document.getElementById('upload-btn');
-        const fileInput = document.getElementById('file-input');
-        const fileList = document.getElementById('file-list');
-        const notification = document.getElementById('notification');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const progressBar = document.getElementById('progress');
-        const loadingText = document.getElementById('loading-text');
+            // 从 IndexedDB 加载文件数据
+            const dbName = 'FileStorage';
+            const dbVersion = 1;
+            let db;
 
-        // 显示通知
-        function showNotification(message) {
-            notification.textContent = message;
-            notification.classList.add('show');
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
+            const request = indexedDB.open(dbName, dbVersion);
 
-        // 切换表单
-        function toggleForm(hideElement, showElement) {
-            hideElement.style.opacity = '0';
-            hideElement.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                hideElement.style.display = 'none';
-                showElement.style.display = 'block';
+            request.onerror = function(event) {
+                console.error("IndexedDB error: ", event.target.error);
+            };
+
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                loadFilesFromDB();
+            };
+
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                const objectStore = db.createObjectStore("files", { keyPath: "id", autoIncrement: true });
+                objectStore.createIndex("username", "username", { unique: false });
+            };
+
+            function loadFilesFromDB() {
+                const transaction = db.transaction(["files"], "readonly");
+                const objectStore = transaction.objectStore("files");
+                const request = objectStore.getAll();
+
+                request.onerror = function(event) {
+                    console.error("Error loading files from IndexedDB: ", event.target.error);
+                };
+
+                request.onsuccess = function(event) {
+                    const fileList = event.target.result;
+                    fileList.forEach(file => {
+                        if (!files[file.username]) {
+                            files[file.username] = [];
+                        }
+                        files[file.username].push(file);
+                    });
+                    if (currentUser) {
+                        updateFileList();
+                    }
+                };
+            }
+
+            // DOM 元素
+            const loginContainer = document.getElementById('login-container');
+            const registerContainer = document.getElementById('register-container');
+            const fileContainer = document.getElementById('file-container');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const toggleRegister = document.getElementById('toggle-register');
+            const toggleLogin = document.getElementById('toggle-login');
+            const uploadBtn = document.getElementById('upload-btn');
+            const fileInput = document.getElementById('file-input');
+            const fileList = document.getElementById('file-list');
+            const notification = document.getElementById('notification');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const progressBar = document.getElementById('progress');
+            const loadingText = document.getElementById('loading-text');
+            const passwordInput = document.getElementById('password');
+            const passwordStrength = document.querySelector('.password-strength');
+            const logoutBtn = document.getElementById('logout-btn');
+            const searchInput = document.getElementById('search-input');
+            const sortButtons = document.querySelectorAll('.sort-btn');
+            const downloadManager = document.getElementById('download-manager');
+            const downloadList = document.getElementById('download-list');
+
+            let currentUser = null;
+            let currentSort = 'name';
+            let currentSortDirection = 'asc';
+            let activeDownloads = [];
+
+            // 显示通知
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
                 setTimeout(() => {
-                    showElement.style.opacity = '1';
-                    showElement.style.transform = 'translateY(0)';
-                }, 50);
-            }, 300);
-        }
-
-        toggleRegister.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleForm(loginContainer, registerContainer);
-        });
-
-        toggleLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleForm(registerContainer, loginContainer);
-        });
-
-        // 注册处理
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = e.target[0].value;
-            const password = e.target[1].value;
-            const confirmPassword = e.target[2].value;
-
-            if (password !== confirmPassword) {
-                showNotification('两次密码不一致');
-                return;
+                    notification.classList.remove('show');
+                }, 3000);
             }
 
-            if (users[username]) {
-                showNotification('用户名已存在');
-                return;
+            // 切换表单
+            function toggleForm(hideElement, showElement) {
+                hideElement.style.opacity = '0';
+                hideElement.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    hideElement.style.display = 'none';
+                    showElement.style.display = 'block';
+                    setTimeout(() => {
+                        showElement.style.opacity = '1';
+                        showElement.style.transform = 'translateY(0)';
+                    }, 50);
+                }, 300);
             }
 
-            users[username] = password;
-            files[username] = [];
-            localStorage.setItem('users', JSON.stringify(users));
-            localStorage.setItem('files', JSON.stringify(files));
-            showNotification('注册成功');
-            toggleForm(registerContainer, loginContainer);
-        });
+            toggleRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleForm(loginContainer, registerContainer);
+            });
 
-        // 登录处理
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = e.target[0].value;
-            const password = e.target[1].value;
+            toggleLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleForm(registerContainer, loginContainer);
+            });
 
-            if (!users[username] || users[username] !== password) {
-                showNotification('用户名或密码错误');
-                return;
-            }
-
-            currentUser = username;
-            toggleForm(loginContainer, fileContainer);
-            uploadBtn.style.display = 'flex';
-            updateFileList();
-            showNotification('登录成功');
-        });
-
-        // 文件上传
-        uploadBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            const files = e.target.files;
-            if (files.length > 0) {
-                uploadFiles(files);
-            }
-        });
-
-        // 分片上传
-        async function uploadFiles(fileList) {
-            showLoading(true);
-            const totalSize = Array.from(fileList).reduce((acc, file) => acc + file.size, 0);
-            let uploadedSize = 0;
-
-            for (let i = 0; i < fileList.length; i++) {
-                const file = fileList[i];
-                const chunkSize = 1024 * 1024; // 1MB chunks
-                const chunks = Math.ceil(file.size / chunkSize);
-
-                for (let j = 0; j < chunks; j++) {
-                    const start = j * chunkSize;
-                    const end = Math.min(file.size, start + chunkSize);
-                    const chunk = file.slice(start, end);
-
-                    await uploadChunk(chunk, file, j, chunks);
-                    uploadedSize += chunk.size;
-                    updateProgress(uploadedSize / totalSize * 100);
+            // 密码强度检查
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                if (password.match(/[a-z]+/)) {
+                    strength += 1;
+                }
+                if (password.match(/[A-Z]+/)) {
+                    strength += 1;
+                }
+                if (password.match(/[0-9]+/)) {
+                    strength += 1;
+                }
+                if (password.match(/[$@#&!]+/)) {
+                    strength += 1;
                 }
 
-                // 保存文件信息
-                if (!files[currentUser]) {
-                    files[currentUser] = [];
+                switch (strength) {
+                    case 0:
+                        passwordStrength.style.width = '0%';
+                        passwordStrength.style.background = '#ff4d4d';
+                        break;
+                    case 1:
+                        passwordStrength.style.width = '25%';
+                        passwordStrength.style.background = '#ffa64d';
+                        break;
+                    case 2:
+                        passwordStrength.style.width = '50%';
+                        passwordStrength.style.background = '#ffff4d';
+                        break;
+                    case 3:
+                        passwordStrength.style.width = '75%';
+                        passwordStrength.style.background = '#4dff4d';
+                        break;
+                    case 4:
+                        passwordStrength.style.width = '100%';
+                        passwordStrength.style.background = '#4d4dff';
+                        break;
                 }
-                files[currentUser].push({
-                    name: file.name,
-                    size: file.size,
-                    type: file.type,
-                    date: new Date().toLocaleString(),
-                    data: await file.arrayBuffer() // 添加文件数据
-                });
+            });
+
+            // 注册处理
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = e.target.elements[0].value;
+                const password = e.target.elements[1].value;
+                const confirmPassword = e.target.elements[2].value;
+
+                if (password !== confirmPassword) {
+                    showNotification('两次密码不一致');
+                    return;
+                }
+
+                if (users[username]) {
+                    showNotification('用户名已存在');
+                    return;
+                }
+
+                users[username] = password;
+                files[username] = [];
+                localStorage.setItem('users', JSON.stringify(users));
+                showNotification('注册成功');
+                toggleForm(registerContainer, loginContainer);
+            });
+
+            // 登录处理
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = e.target.elements[0].value;
+                const password = e.target.elements[1].value;
+
+                if (!users[username] || users[username] !== password) {
+                    showNotification('用户名或密码错误');
+                    return;
+                }
+
+                currentUser = username;
+                toggleForm(loginContainer, fileContainer);
+                uploadBtn.style.display = 'flex';
+                updateFileList();
+                showNotification('登录成功');
+            });
+
+            // 登出处理
+            logoutBtn.addEventListener('click', () => {
+                currentUser = null;
+                toggleForm(fileContainer, loginContainer);
+                uploadBtn.style.display = 'none';
+                showNotification('已登出');
+            });
+
+            // 文件上传
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    uploadFiles(files);
+                }
+            });
+
+            // 分片上传
+            async function uploadFiles(fileList) {
+                showLoading(true);
+                const totalSize = Array.from(fileList).reduce((acc, file) => acc + file.size, 0);
+                let uploadedSize = 0;
+
+                for (let i = 0; i < fileList.length; i++) {
+                    const file = fileList[i];
+                    const chunkSize = 1024 * 1024; // 1MB chunks
+                    const chunks = Math.ceil(file.size / chunkSize);
+
+                    const fileData = await file.arrayBuffer();
+
+                    for (let j = 0; j < chunks; j++) {
+                        const start = j * chunkSize;
+                        const end = Math.min(file.size, start + chunkSize);
+                        const chunk = fileData.slice(start, end);
+
+                        await uploadChunk(chunk, file, j, chunks);
+                        uploadedSize += chunk.byteLength;
+                        updateProgress(uploadedSize / totalSize * 100);
+                    }
+
+                    // 保存文件信息到 IndexedDB
+                    const fileInfo = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        date: new Date().toLocaleString(),
+                        data: fileData,
+                        username: currentUser
+                    };
+
+                    const transaction = db.transaction(["files"], "readwrite");
+                    const objectStore = transaction.objectStore("files");
+                    const request = objectStore.add(fileInfo);
+
+                    request.onerror = function(event) {
+                        console.error("Error adding file to IndexedDB: ", event.target.error);
+                    };
+
+                    request.onsuccess = function(event) {
+                        if (!files[currentUser]) {
+                            files[currentUser] = [];
+                        }
+                        files[currentUser].push(fileInfo);
+                        updateFileList();
+                    };
+                }
+
+                showNotification(`成功上传 ${fileList.length} 个文件`);
+                showLoading(false);
             }
 
-            localStorage.setItem('files', JSON.stringify(files));
-            updateFileList();
-            showNotification(`成功上传 ${fileList.length} 个文件`);
-            showLoading(false);
-        }
-
-        function uploadChunk(chunk, file, chunkIndex, totalChunks) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    // 模拟上传延迟
+            function uploadChunk(chunk, file, chunkIndex, totalChunks) {
+                return new Promise((resolve) => {
                     setTimeout(() => {
                         loadingText.textContent = `正在上传 ${file.name} (${chunkIndex + 1}/${totalChunks})`;
                         resolve();
-                    }, 100);
-                };
-                reader.readAsDataURL(chunk);
-            });
-        }
-
-        // 更新文件列表
-        function updateFileList() {
-            fileList.innerHTML = '';
-            if (files[currentUser] && files[currentUser].length > 0) {
-                files[currentUser].forEach((file, index) => {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item';
-                    fileItem.innerHTML = `
-                        <div class="file-info">
-                            <span class="file-name">${file.name}</span>
-                            <span class="file-meta">${formatSize(file.size)} - ${file.date}</span>
-                        </div>
-                        <div class="file-actions">
-                            <button class="file-btn download-btn" onclick="downloadFile(${index})">下载</button>
-                            <button class="file-btn delete-btn" onclick="deleteFile(${index})">删除</button>
-                        </div>
-                    `;
-                    fileList.appendChild(fileItem);
-                    setTimeout(() => fileItem.style.opacity = '1', 50 * index);
+                    }, 10);
                 });
-            } else {
-                fileList.innerHTML = '<p style="text-align: center; color: var(--text-light);">暂无文件</p>';
-            }
-        }
-
-        // 文件下载
-        function downloadFile(index) {
-            const file = files[currentUser][index];
-            
-            // 检查文件数据是否存在
-            if (!file.data) {
-                showNotification('文件数据不存在，无法下载');
-                return;
             }
 
-            // 创建 Blob 对象
-            const blob = new Blob([file.data], { type: file.type });
+            // 更新文件列表
+            function updateFileList() {
+                fileList.innerHTML = '';
+                if (files[currentUser] && files[currentUser].length > 0) {
+                    const sortedFiles = sortFiles(files[currentUser]);
+                    sortedFiles.forEach((file, index) => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        fileItem.innerHTML = `
+                            <div class="file-info">
+                                <span class="file-name">${file.name}</span>
+                                <span class="file-meta">${formatSize(file.size)} - ${file.date}</span>
+                            </div>
+                            <div class="file-actions">
+                                <button class="file-btn download-btn" data-file-id="${file.id}">下载</button>
+                                <button class="file-btn delete-btn" data-file-id="${file.id}">删除</button>
+                            </div>
+                        `;
+                        fileList.appendChild(fileItem);
+                        setTimeout(() => fileItem.style.opacity = '1', 50 * index);
+                    });
+                } else {
+                    fileList.innerHTML = '<p style="text-align: center; color: var(--text-light);">暂无文件</p>';
+                }
+            }
 
-            // 创建下载链接
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            document.body.appendChild(a);
+            // 使用事件委托处理文件操作
+            fileList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('download-btn')) {
+                    const fileId = parseInt(e.target.getAttribute('data-file-id'));
+                    downloadFile(fileId);
+                } else if (e.target.classList.contains('delete-btn')) {
+                    const fileId = parseInt(e.target.getAttribute('data-file-id'));
+                    deleteFile(fileId);
+                }
+            });
 
-            // 触发下载
-            a.click();
+            // 文件下载
+            function downloadFile(fileId) {
+                const file = files[currentUser].find(f => f.id === fileId);
+                if (file) {
+                    const blob = new Blob([file.data], { type: file.type });
+                    const url = URL.createObjectURL(blob);
 
-            // 清理
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+                    // 创建下载任务
+                    const downloadTask = {
+                        id: Date.now(),
+                        name: file.name,
+                        progress: 0,
+                        status: 'pending'
+                    };
+                    activeDownloads.push(downloadTask);
+                    updateDownloadManager();
 
-            showNotification('文件下载已开始');
-        }
+                    // 模拟下载进度
+                    const interval = setInterval(() => {
+                        downloadTask.progress += 10;
+                        if (downloadTask.progress >= 100) {
+                            clearInterval(interval);
+                            downloadTask.status = 'completed';
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = file.name;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                        }
+                        updateDownloadManager();
+                    }, 500);
 
-        // 文件删除
-        function deleteFile(index) {
-            if (confirm('确定要删除这个文件吗？')) {
-                const deletedFile = files[currentUser].splice(index, 1)[0];
-                localStorage.setItem('files', JSON.stringify(files));
+                    showNotification('文件下载已开始');
+                    downloadManager.classList.add('show');
+                }
+            }
+
+            // 更新下载管理器
+            function updateDownloadManager() {
+                downloadList.innerHTML = '';
+                activeDownloads.forEach(task => {
+                    const downloadItem = document.createElement('div');
+                    downloadItem.className = 'download-item';
+                    downloadItem.innerHTML = `
+                        <div class="download-item-name">${task.name}</div>
+                        <div class="download-item-progress" style="width: ${task.progress}%"></div>
+                    `;
+                    downloadList.appendChild(downloadItem);
+                });
+
+                // 清理已完成的下载任务
+                activeDownloads = activeDownloads.filter(task => task.status !== 'completed');
+                if (activeDownloads.length === 0) {
+                    setTimeout(() => {
+                        downloadManager.classList.remove('show');
+                    }, 3000);
+                }
+            }
+
+            // 文件删除
+            function deleteFile(fileId) {
+                if (confirm('确定要删除这个文件吗？')) {
+                    const transaction = db.transaction(["files"], "readwrite");
+                    const objectStore = transaction.objectStore("files");
+                    const request = objectStore.delete(fileId);
+
+                    request.onerror = function(event) {
+                        console.error("Error deleting file from IndexedDB: ", event.target.error);
+                    };
+
+                    request.onsuccess = function(event) {
+                        files[currentUser] = files[currentUser].filter(file => file.id !== fileId);
+                        updateFileList();
+                        showNotification('文件已删除');
+                    };
+                }
+            }
+
+            // 格式化文件大小
+            function formatSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // 显示/隐藏加载动画
+            function showLoading(show) {
+                loadingOverlay.classList.toggle('show', show);
+            }
+
+            // 更新进度条
+            function updateProgress(percentage) {
+                progressBar.style.width = `${percentage}%`;
+            }
+
+            // 搜索文件
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                updateFileList(searchTerm);
+            });
+
+            // 排序文件
+            sortButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const sortBy = this.dataset.sort;
+                    if (currentSort === sortBy) {
+                        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort = sortBy;
+                        currentSortDirection = 'asc';
+                    }
+                    sortButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    updateFileList();
+                });
+            });
+
+            function sortFiles(fileArray) {
+                return fileArray.sort((a, b) => {
+                    let comparison = 0;
+                    switch (currentSort) {
+                        case 'name':
+                            comparison = a.name.localeCompare(b.name);
+                            break;
+                        case 'date':
+                            comparison = new Date(b.date) - new Date(a.date);
+                            break;
+                        case 'size':
+                            comparison = b.size - a.size;
+                            break;
+                    }
+                    return currentSortDirection === 'asc' ? comparison : -comparison;
+                });
+            }
+
+            // 初始化
+            if (currentUser) {
+                toggleForm(loginContainer, fileContainer);
+                uploadBtn.style.display = 'flex';
                 updateFileList();
-                showNotification(`文件 ${deletedFile.name} 已删除`);
             }
-        }
-
-        // 格式化文件大小
-        function formatSize(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        // 显示/隐藏加载动画
-        function showLoading(show) {
-            loadingOverlay.classList.toggle('show', show);
-        }
-
-        // 更新进度条
-        function updateProgress(percentage) {
-            progressBar.style.width = `${percentage}%`;
-        }
+        });
     </script>
 </body>
 </html>
-
