@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NR CEO 私人聊天室</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transform: translateY(50px);
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(to right, #ff8a00, #da1b60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .info-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .enter-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff8a00, #da1b60);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .enter-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .support {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NR CEO 私人聊天室</h1>
+        
+        <div class="info-box">
+            <p class="warning">提示：本链接不是聊天室，是中转站。点击下方按钮进入正式聊天室，在进入前，请务必阅读下方信息。</p>
+            <p>此聊天室为 NR CEO申请的私人聊天室，剩余时间 31 天（至2025 年 3 月 2 日）</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>输出台：</h3>
+            <p>尊敬的用户 NR CEO 您的聊天室构建成功，共消费 43.60 元，祝您使用愉快。</p>
+            <p>与目标服务器构建连接成功 --N/A</p>
+        </div>
+        
+        <a href="https://doc.weixin.qq.com/doc/w3_AZwAsAZXAOsshvRvMz8RTWqUR4gQV?scode=AEoAcgeMAGgnoPRym6" class="enter-btn" target="_blank">进入聊天室</a>
+        
+        <div class="info-box">
+            <h3>使用教程：</h3>
+            <p>点击上方按钮，跳转新的页面后点击下方评论按钮即可发送信息到聊天室里面，点击全部评论，即可进入全屏聊天室发送信息。朋友圈的使用方法，将你要发的信息或者图文发送至管理员（本聊天室的付费方）即可申请将你的信息发在朋友圈上。</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>声明信息：</h3>
+            <p>本聊天室为 Never Rest 开发团队支持，本聊天室为用户自费购买。信息保障安全。</p>
+        </div>
+        
+        <div class="support">
+            <p>技术支持：Never Rest 开发团队 @NR CEO(NR CEO)</p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const infoBoxes = document.querySelectorAll('.info-box');
+            infoBoxes.forEach((box, index) => {
+                box.style.animation = `fadeIn 0.5s ${index * 0.2}s forwards`;
+            });
+        });
+    </script>
+</body>
+</html>
