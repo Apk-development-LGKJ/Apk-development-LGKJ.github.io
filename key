@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寻找钥匙 - 挑战游戏</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #FF6B6B;
+            --background-color: #f0f4f8;
+            --text-color: #2C3E50;
+            --success-color: #27AE60;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+            background-color: white;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #3476c5;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #timer {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 2rem 0;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            transition: color 0.5s ease;
+        }
+
+        .screen {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .active {
+            display: block;
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        #result-message {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        #secret-code-display {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #f0f4f8;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .success {
+            color: var(--success-color);
+        }
+
+        .failure {
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="setup-screen" class="screen active">
+            <i class="fas fa-cog icon"></i>
+            <h1>寻找钥匙</h1>
+            <input type="number" id="game-time" placeholder="游戏时长（分钟）" min="1" max="60">
+            <input type="text" id="password" placeholder="设置钥匙密码">
+            <input type="text" id="secret-code" placeholder="设置暗号">
+            <button id="start-setup">开始游戏</button>
+        </div>
+
+        <div id="ready-screen" class="screen">
+            <i class="fas fa-play-circle icon"></i>
+            <h1>准备就绪</h1>
+            <p>一切就绪！点击下方按钮开始游戏。</p>
+            <button id="start-game">开始挑战</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <i class="fas fa-hourglass-half icon"></i>
+            <div id="timer"></div>
+            <button id="found-key" class="pulse">我找到钥匙了！</button>
+        </div>
+
+        <div id="key-found-screen" class="screen">
+            <i class="fas fa-key icon"></i>
+            <h1>找到钥匙！</h1>
+            <input type="text" id="key-password" placeholder="输入钥匙密码">
+            <button id="submit-password">提交</button>
+            <button id="back-to-game">返回游戏</button>
+        </div>
+
+        <div id="result-screen" class="screen">
+            <i id="result-icon" class="icon"></i>
+            <h1 id="result-message"></h1>
+            <p id="secret-code-display"></p>
+            <button id="play-again">再来一局</button>
+        </div>
+    </div>
+
+    <script>
+        let gameTime, password, secretCode, timer;
+
+        const setupScreen = document.getElementById('setup-screen');
+        const readyScreen = document.getElementById('ready-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const keyFoundScreen = document.getElementById('key-found-screen');
+        const resultScreen = document.getElementById('result-screen');
+
+        const startSetupBtn = document.getElementById('start-setup');
+        const startGameBtn = document.getElementById('start-game');
+        const foundKeyBtn = document.getElementById('found-key');
+        const submitPasswordBtn = document.getElementById('submit-password');
+        const backToGameBtn = document.getElementById('back-to-game');
+        const playAgainBtn = document.getElementById('play-again');
+
+        const timerDisplay = document.getElementById('timer');
+        const resultMessage = document.getElementById('result-message');
+        const secretCodeDisplay = document.getElementById('secret-code-display');
+        const resultIcon = document.getElementById('result-icon');
+
+        function showScreen(screen) {
+            gsap.to('.active', { opacity: 0, duration: 0.5, onComplete: () => {
+                document.querySelector('.active').classList.remove('active');
+                screen.classList.add('active');
+                gsap.fromTo(screen, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
+            }});
+        }
+
+        function startTimer(duration) {
+            let time = duration * 60;
+            timer = setInterval(() => {
+                let minutes = parseInt(time / 60, 10);
+                let seconds = parseInt(time % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerDisplay.textContent = minutes + ":" + seconds;
+
+                if (--time < 0) {
+                    clearInterval(timer);
+                    showResult(false);
+                }
+
+                if (time < 60) {
+                    timerDisplay.style.color = 'var(--secondary-color)';
+                }
+            }, 1000);
+        }
+
+        function showResult(success) {
+            clearInterval(timer);
+            resultMessage.textContent = success ? "恭喜你，挑战成功！" : "游戏结束！";
+            secretCodeDisplay.textContent = success ? `暗号: ${secretCode}` : "";
+            resultIcon.className = success ? "fas fa-trophy icon success" : "fas fa-times-circle icon failure";
+            showScreen(resultScreen);
+        }
+
+        startSetupBtn.addEventListener('click', () => {
+            gameTime = document.getElementById('game-time').value;
+            password = document.getElementById('password').value;
+            secretCode = document.getElementById('secret-code').value;
+
+            if (gameTime && password && secretCode) {
+                showScreen(readyScreen);
+            } else {
+                alert('请填写所有字段');
+            }
+        });
+
+        startGameBtn.addEventListener('click', () => {
+            showScreen(gameScreen);
+            startTimer(gameTime);
+        });
+
+        foundKeyBtn.addEventListener('click', () => {
+            showScreen(keyFoundScreen);
+        });
+
+        submitPasswordBtn.addEventListener('click', () => {
+            const enteredPassword = document.getElementById('key-password').value;
+            if (enteredPassword === password) {
+                showResult(true);
+            } else {
+                alert('密码错误，请重试！');
+            }
+        });
+
+        backToGameBtn.addEventListener('click', () => {
+            showScreen(gameScreen);
+        });
+
+        playAgainBtn.addEventListener('click', () => {
+            showScreen(setupScreen);
+            document.getElementById('game-time').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('secret-code').value = '';
+            timerDisplay.style.color = 'var(--primary-color)';
+        });
+    </script>
+</body>
+</html>
